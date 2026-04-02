@@ -10,10 +10,19 @@ PWMAudio audio(2);
 #endif
 BackgroundAudioSpeech BMP(audio);
 
+unsigned char cvoice[1024] = { 0 };
+
 void setup() {
     Serial.begin(115200);
     Serial.println("i'm alive!!");
-    BMP.setVoice(voice_en_us);
+    memcpy(cvoice, voice_en_us.data, voice_en_us.len);
+    strcat((char*)cvoice, "pitch 140 160\n");
+    BackgroundAudioVoice vdata = {
+        .name = voice_en_us.name,
+        .len = strlen((char*)cvoice),
+        .data = cvoice
+    };
+    BMP.setVoice(vdata);
     BMP.begin();
     BMP.setGain(1);
     BMP.setPitch(99);
