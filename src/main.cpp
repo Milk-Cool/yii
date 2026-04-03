@@ -3,6 +3,8 @@
 #include <libespeak-ng/voice/en_us.h>
 #include "bus.h"
 #include "storage.h"
+#include "blecomm.h"
+#include "state.h"
 
 #ifdef ESP32
 // #include <ESP32I2SAudio.h>
@@ -20,6 +22,9 @@ void setup() {
     Serial.begin(115200);
     Serial.println("i'm alive!!");
     storage_init();
+    ble_init();
+    state_init();
+    ble_set_cb(handle_advertisement);
     mode = storage().getUChar("mode", 0); // 0 - setup, 1 - control, 2 - doll
 
     // memcpy(cvoice, voice_en_us.data, voice_en_us.len);
@@ -45,6 +50,8 @@ static BusData get_serial_data() {
     return bus_parse(data);
 }
 
+static uint64_t boot_held_since;
+static bool boot_held = false;
 void loop() {
     // BMP.flush();
     // BMP.speak("hello world");
@@ -79,5 +86,20 @@ void loop() {
             Serial.write(bin.data(), bin.size());
         }
         delay(1);
+        return;
     }
+
+    // reboot into config mode if GP0 is held for >=3s
+    if(digitalRead(0) == LOW) {
+        if(!boot_held) {
+            boot_held = true;
+            boot_held_since = millis();
+        }
+        if(millis() - boot_held_since >= 3000) {
+            storage().putUChar("mode", 0);
+            ESP.restart();
+        }
+    } else boot_held = false;
+
+    state_loop();
 }
