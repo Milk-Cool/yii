@@ -11,7 +11,7 @@
 #define ADVERTISEMENT_LENGTH 31
 #define FREE_SPACE_LENGTH (ADVERTISEMENT_LENGTH - 7 - 2) // 7 bytes occupied by other fields, 2 bytes occupied by length and type
 
-#define RESPONSE_TIMEOUT 8000
+#define RESPONSE_TIMEOUT 12000
 
 static std::vector<uint8_t> advertisement;
 
@@ -61,9 +61,12 @@ void state_init() {
     xp = storage().getUChar("xp");
     saturation = storage().getUChar("saturation");
 
-    if(storage().getBytesLength("met") > 0) {
-        met.reserve(storage().getBytesLength("met"));
-        storage().getBytes("met", met.data(), met.size());
+    size_t s = storage().getBytesLength("met");
+    if(s > 0) {
+        uint8_t d[s];
+        storage().getBytes("met", d, s);
+        for(size_t i = 0; i < s; i++)
+            met.push_back(d[i]);
     }
 
     update();
@@ -130,8 +133,8 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             activity = ACTIVITY_INTRODUCTION;
             dialogue = 0;
             speaking = true;
-            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
             put_met(mac, RELATION_GETTING_FAMILIAR);
+            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
         } else if(m == RELATION_GETTING_FAMILIAR || m == RELATION_ACQUAINTANCES) {
             thing = random_get() % things.size();
             variant = random_get() % activities[ACTIVITY_GETTING_TO_KNOW_EACH_OTHER].size();
