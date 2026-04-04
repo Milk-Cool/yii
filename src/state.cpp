@@ -11,6 +11,8 @@
 #define ADVERTISEMENT_LENGTH 31
 #define FREE_SPACE_LENGTH (ADVERTISEMENT_LENGTH - 7 - 2) // 7 bytes occupied by other fields, 2 bytes occupied by length and type
 
+#define RESPONSE_TIMEOUT 8000
+
 static std::vector<uint8_t> advertisement;
 
 static char name[13] = { 0 };
@@ -91,8 +93,11 @@ String replace_percents(const char* str, const char* their_name) {
     String o = String(str);
     o.replace("%n", name);
     o.replace("%N", their_name);
+    o.replace("%t", things[thing]);
     return o;
 }
+
+static uint64_t last = 0;
 
 void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     uint8_t mac[6];
@@ -119,22 +124,34 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     if(activity == 0 && their_activity == 0 && memcmp(my_mac, mac, 6) < 0) {
         // my mac is less than theirs, i can start the conversation
         // yes, seriously -- this is how it works
-        if(get_met(mac) == -1) {
+        int16_t m = get_met(mac);
+        if(m == -1) {
             variant = random_get() % activities[ACTIVITY_INTRODUCTION].size();
             activity = ACTIVITY_INTRODUCTION;
             dialogue = 0;
             speaking = true;
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
             put_met(mac, RELATION_GETTING_FAMILIAR);
+        } else if(m == RELATION_GETTING_FAMILIAR || m == RELATION_ACQUAINTANCES) {
+            thing = random_get() % things.size();
+            variant = random_get() % activities[ACTIVITY_GETTING_TO_KNOW_EACH_OTHER].size();
+            activity = ACTIVITY_GETTING_TO_KNOW_EACH_OTHER;
+            dialogue = 0;
+            speaking = true;
+            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
+            if(m == RELATION_GETTING_FAMILIAR) put_met(mac, RELATION_ACQUAINTANCES);
         }
+        last = millis();
     } else if(their_activity != 0 && (activity == 0 || (their_activity == activity && their_dialogue > dialogue))) {
         if(their_dialogue != activities[their_activity][their_variant].size() - 1) {
+            thing = their_thing;
             activity = their_activity;
             variant = their_variant;
             dialogue = their_dialogue + 1;
             speaking = true;
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
             // if(dialogue == activities[activity][variant].size() - 1) activity = 0;
+            last = millis();
         } else {
             activity = 0;
         }
@@ -145,6 +162,13 @@ static uint64_t saturation_last_decreased = 0;
 
 void state_loop() {
     bool changed = false;
+    if(millis() - last >= RESPONSE_TIMEOUT) {
+        activity = 0;
+        tts_stop();
+        speaking = false;
+        changed = true;
+    }
+
     if(speaking && tts_done()) {
         Serial.println("done speaking");
         speaking = false;

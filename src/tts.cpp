@@ -27,5 +27,9 @@ bool tts_done() {
     return BMP->done();
 }
 void tts_play(const char* text) {
+    tts_stop();
     BMP->speak(text);
+}
+void tts_stop() {
+    BMP->flush();
 }
