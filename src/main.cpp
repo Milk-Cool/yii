@@ -1,20 +1,11 @@
 #include <Arduino.h>
-#include <BackgroundAudioSpeech.h>
-#include <libespeak-ng/voice/en_us.h>
 #include "bus.h"
 #include "storage.h"
 #include "blecomm.h"
 #include "state.h"
+#include "random.h"
+#include "tts.h"
 
-#ifdef ESP32
-// #include <ESP32I2SAudio.h>
-#else
-#include <PWMAudio.h>
-PWMAudio audio(2);
-#endif
-// BackgroundAudioSpeech BMP(audio);
-
-unsigned char cvoice[1024] = { 0 };
 static uint8_t mode;
 static bool setup_write = false;
 
@@ -22,22 +13,12 @@ void setup() {
     Serial.begin(115200);
     Serial.println("i'm alive!!");
     storage_init();
+    tts_init();
+    random_init();
     ble_init();
     state_init();
     ble_set_cb(handle_advertisement);
     mode = storage().getUChar("mode", 0); // 0 - setup, 1 - control, 2 - doll
-
-    // memcpy(cvoice, voice_en_us.data, voice_en_us.len);
-    // strcat((char*)cvoice, "pitch 80 110\n");
-    // BackgroundAudioVoice vdata = {
-    //     .name = voice_en_us.name,
-    //     .len = strlen((char*)cvoice),
-    //     .data = cvoice
-    // };
-    // BMP.setVoice(vdata);
-    // BMP.begin();
-    // BMP.setGain(1);
-    // BMP.setPitch(99);
 }
 
 static BusData get_serial_data() {
@@ -53,12 +34,6 @@ static BusData get_serial_data() {
 static uint64_t boot_held_since;
 static bool boot_held = false;
 void loop() {
-    // BMP.flush();
-    // BMP.speak("hello world");
-    // delay(2000);
-    // BMP.speak("my name is john");
-    // delay(2000);
-
     if(mode == 0) {
         BusData data = get_serial_data();
         BusData out;
