@@ -87,6 +87,13 @@ void put_met(uint8_t* mac, uint8_t val) {
     storage().putBytes("met", met.data(), met.size());
 }
 
+String replace_percents(const char* str, const char* their_name) {
+    String o = String(str);
+    o.replace("%n", name);
+    o.replace("%N", their_name);
+    return o;
+}
+
 void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     uint8_t mac[6];
     for(uint8_t i = 0; i < 6; i++)
@@ -117,27 +124,34 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             activity = ACTIVITY_INTRODUCTION;
             dialogue = 0;
             speaking = true;
-            tts_play(activities[activity][variant][dialogue]);
+            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
+            put_met(mac, RELATION_GETTING_FAMILIAR);
         }
-    } else if(their_activity != 0 && (activity == 0 || their_activity == activity) && their_dialogue > dialogue) {
+    } else if(their_activity != 0 && (activity == 0 || (their_activity == activity && their_dialogue > dialogue))) {
         if(their_dialogue != activities[their_activity][their_variant].size() - 1) {
             activity = their_activity;
             variant = their_variant;
             dialogue = their_dialogue + 1;
             speaking = true;
-            tts_play(activities[activity][variant][dialogue]);
+            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
+            // if(dialogue == activities[activity][variant].size() - 1) activity = 0;
+        } else {
+            activity = 0;
         }
     }
-
-    if(speaking && tts_done())
-        speaking = false;
-    if(!speaking) update();
 }
 
 static uint64_t saturation_last_decreased = 0;
 
 void state_loop() {
     bool changed = false;
+    if(speaking && tts_done()) {
+        Serial.println("done speaking");
+        speaking = false;
+        changed = true;
+    }
+    if(speaking) return;
+
     uint64_t now = millis();
     if(now - saturation_last_decreased >= 8 * 60 * 1000) {
         if(saturation > 0) saturation--;

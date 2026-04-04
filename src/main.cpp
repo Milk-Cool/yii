@@ -13,12 +13,16 @@ void setup() {
     Serial.begin(115200);
     Serial.println("i'm alive!!");
     storage_init();
-    tts_init();
-    random_init();
-    ble_init();
-    state_init();
-    ble_set_cb(handle_advertisement);
     mode = storage().getUChar("mode", 0); // 0 - setup, 1 - control, 2 - doll
+    if(mode != 0) {
+        tts_init();
+        random_init();
+        ble_init();
+        state_init();
+        ble_set_cb(handle_advertisement);
+
+        tts_play("ah!");
+    }
 }
 
 static BusData get_serial_data() {
