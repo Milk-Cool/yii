@@ -13,8 +13,9 @@ extern Activities activities;
 #define ACTIVITY_INTRODUCTION 1
 #define ACTIVITY_GETTING_TO_KNOW_EACH_OTHER 2
 
-#define RELATION_GETTING_FAMILIAR 0
-#define RELATION_ACQUAINTANCES 1
+#define RELATION_GETTING_FAMILIAR_MIN 0
+#define RELATION_GETTING_FAMILIAR_MAX 2
+#define RELATION_ACQUAINTANCES 3
 
 typedef const char* Thing;
 typedef std::vector<Thing> Things;

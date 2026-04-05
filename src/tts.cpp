@@ -27,13 +27,14 @@ void tts_init() {
     };
     BMP->setVoice(vdata);
     BMP->begin();
-    BMP->setGain(1);
+    BMP->setGain(0.8);
     BMP->setPitch(99);
 }
 bool tts_done() {
     return BMP->done();
 }
 void tts_play(const char* text) {
+    Serial.println(String("speaking: ") + text);
     tts_stop();
     BMP->speak(text);
 }

@@ -32,6 +32,7 @@ static uint8_t my_mac[6];
 static bool speaking = false;
 
 static void update() {
+    Serial.println("adv upd");
     advertisement.erase(advertisement.begin(), advertisement.end());
     
     for(uint8_t i = 0; i < 12; i++) advertisement.push_back(name[i]);
@@ -73,14 +74,14 @@ void state_init() {
 }
 
 int16_t get_met(uint8_t* mac) {
-    for(int i = 0; i < met.size(); i += 7) {
+    for(size_t i = 0; i < met.size(); i += 7) {
         if(!memcmp(mac, met.data() + i, 6))
             return met[i + 6];
     }
     return -1;
 }
 void put_met(uint8_t* mac, uint8_t val) {
-    for(int i = 0; i < met.size(); i += 7)
+    for(size_t i = 0; i < met.size(); i += 7)
         if(!memcmp(mac, met.data() + i, 6)) {
             met[i + 6] = val;
             storage().putBytes("met", met.data(), met.size());
@@ -101,8 +102,27 @@ String replace_percents(const char* str, const char* their_name) {
 }
 
 static uint64_t last = 0;
+static uint64_t tts_cooldown = 0;
+static uint64_t block_until = 0;
+
+static bool check_can_upd(bool* changed) {
+    uint64_t now = millis();
+    if(now < block_until) return false;
+    if(now - tts_cooldown < 400) return false; // race condition fix
+    if(speaking && tts_done()) {
+        Serial.println("done speaking");
+        speaking = false;
+        tts_cooldown = now;
+        if(changed != NULL) *changed = true;
+        return true;
+    }
+    if(speaking) return false;
+    return true;
+}
 
 void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
+    if(!check_can_upd(NULL)) return;
+
     uint8_t mac[6];
     for(uint8_t i = 0; i < 6; i++)
         mac[i] = addr[5 - i];
@@ -123,7 +143,7 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     uint8_t their_thing = data[17];
     uint8_t their_special_data[4];
     memcpy(their_special_data, data.data() + 18, 4);
-
+    
     if(activity == 0 && their_activity == 0 && memcmp(my_mac, mac, 6) < 0) {
         // my mac is less than theirs, i can start the conversation
         // yes, seriously -- this is how it works
@@ -133,30 +153,35 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             activity = ACTIVITY_INTRODUCTION;
             dialogue = 0;
             speaking = true;
-            put_met(mac, RELATION_GETTING_FAMILIAR);
+            put_met(mac, RELATION_GETTING_FAMILIAR_MIN);
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
-        } else if(m == RELATION_GETTING_FAMILIAR || m == RELATION_ACQUAINTANCES) {
+        } else if((m >= RELATION_GETTING_FAMILIAR_MIN && m <= RELATION_GETTING_FAMILIAR_MAX) || m == RELATION_ACQUAINTANCES) {
             thing = random_get() % things.size();
             variant = random_get() % activities[ACTIVITY_GETTING_TO_KNOW_EACH_OTHER].size();
             activity = ACTIVITY_GETTING_TO_KNOW_EACH_OTHER;
             dialogue = 0;
             speaking = true;
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
-            if(m == RELATION_GETTING_FAMILIAR) put_met(mac, RELATION_ACQUAINTANCES);
+            if(m == RELATION_ACQUAINTANCES) {}
+            else if(m == RELATION_GETTING_FAMILIAR_MAX) put_met(mac, RELATION_ACQUAINTANCES);
+            else put_met(mac, m + 1);
         }
+        tts_cooldown = millis();
         last = millis();
-    } else if(their_activity != 0 && (activity == 0 || (their_activity == activity && their_dialogue > dialogue))) {
+    } else if(their_activity != 0 && (activity == 0 || (their_activity == activity && their_dialogue == dialogue + 1))) {
         if(their_dialogue != activities[their_activity][their_variant].size() - 1) {
             thing = their_thing;
             activity = their_activity;
             variant = their_variant;
             dialogue = their_dialogue + 1;
             speaking = true;
+            tts_cooldown = millis();
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
             // if(dialogue == activities[activity][variant].size() - 1) activity = 0;
             last = millis();
         } else {
             activity = 0;
+            block_until = millis() + 5000;
         }
     }
 }
@@ -165,21 +190,16 @@ static uint64_t saturation_last_decreased = 0;
 
 void state_loop() {
     bool changed = false;
-    if(millis() - last >= RESPONSE_TIMEOUT) {
+    if(activity != 0 && millis() - last >= RESPONSE_TIMEOUT) {
         activity = 0;
         tts_stop();
         speaking = false;
         changed = true;
     }
 
-    if(speaking && tts_done()) {
-        Serial.println("done speaking");
-        speaking = false;
-        changed = true;
-    }
-    if(speaking) return;
-
     uint64_t now = millis();
+    if(!check_can_upd(&changed)) return;
+
     if(now - saturation_last_decreased >= 8 * 60 * 1000) {
         if(saturation > 0) saturation--;
         saturation_last_decreased = now;
