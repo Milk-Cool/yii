@@ -6,6 +6,6 @@ void random_init() {
 }
 unsigned int random_get() {
     unsigned int n = (unsigned int)rand();
-    storage().putUInt("seed", n);
+    storage().putUInt("seed", (unsigned int)rand());
     return n;
 }
