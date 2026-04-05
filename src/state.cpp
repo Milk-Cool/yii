@@ -1,5 +1,6 @@
 #include "state.h"
 #include <vector>
+#include <mutex>
 #include <string.h>
 #include "storage.h"
 #include "blecomm.h"
@@ -30,6 +31,7 @@ static std::vector<uint8_t> met;
 static uint8_t my_mac[6];
 
 static bool speaking = false;
+std::mutex upd_mutex;
 
 static void update() {
     Serial.println("adv upd");
@@ -53,6 +55,7 @@ static void update() {
 }
 
 void state_init() {
+    std::lock_guard<std::mutex> guard(upd_mutex);
     esp_read_mac(my_mac, ESP_MAC_BT);
 
     String name_loaded = storage().getString("name");
@@ -121,6 +124,7 @@ static bool check_can_upd(bool* changed) {
 }
 
 void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
+    std::lock_guard<std::mutex> guard(upd_mutex);
     if(!check_can_upd(NULL)) return;
 
     uint8_t mac[6];
@@ -189,6 +193,7 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
 static uint64_t saturation_last_decreased = 0;
 
 void state_loop() {
+    std::lock_guard<std::mutex> guard(upd_mutex);
     bool changed = false;
     if(activity != 0 && millis() - last >= RESPONSE_TIMEOUT) {
         activity = 0;
