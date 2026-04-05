@@ -173,14 +173,15 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
         tts_cooldown = millis();
         last = millis();
     } else if(their_activity != 0 && (activity == 0 || (their_activity == activity && their_dialogue == dialogue + 1))) {
-        if(their_dialogue != activities[their_activity][their_variant].size() - 1) {
+        // if dialogue == len then we're just done speaking
+        if(their_dialogue != activities[their_activity][their_variant].size()) {
             thing = their_thing;
             activity = their_activity;
             variant = their_variant;
             dialogue = their_dialogue + 1;
             speaking = true;
             tts_cooldown = millis();
-            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
+            if(dialogue != activities[their_activity][their_variant].size()) tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
             // if(dialogue == activities[activity][variant].size() - 1) activity = 0;
             last = millis();
         } else {
@@ -210,6 +211,8 @@ void state_loop() {
         saturation_last_decreased = now;
         changed = true;
     }
+
+    if(activities.contains(activity) && dialogue == activities[activity][variant].size() && now - last >= 5000) activity = 0;
 
     if(changed) update();
 }
