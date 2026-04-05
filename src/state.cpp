@@ -206,7 +206,10 @@ void state_loop() {
     uint64_t now = millis();
     if(!check_can_upd(&changed)) return;
 
-    if(activity_reset_timer != 0xffffffff && now - activity_reset_timer > 5000) activity = 0;
+    if(activity_reset_timer != 0xffffffff && now - activity_reset_timer > 5000) {
+        activity = 0;
+        activity_reset_timer = 0xffffffff;
+    }
 
     if(now - saturation_last_decreased >= 8 * 60 * 1000) {
         if(saturation > 0) saturation--;
