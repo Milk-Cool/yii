@@ -107,6 +107,7 @@ String replace_percents(const char* str, const char* their_name) {
 static uint64_t last = 0;
 static uint64_t tts_cooldown = 0;
 static uint64_t block_until = 0;
+static uint64_t activity_reset_timer = 0xffffffff;
 
 static bool check_can_upd(bool* changed) {
     uint64_t now = millis();
@@ -117,6 +118,7 @@ static bool check_can_upd(bool* changed) {
         speaking = false;
         tts_cooldown = now;
         if(changed != NULL) *changed = true;
+        if(activity != 0 && dialogue == activities[activity][variant].size() - 1) activity_reset_timer = millis();
         return true;
     }
     if(speaking) return false;
@@ -181,7 +183,6 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             speaking = true;
             tts_cooldown = millis();
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
-            // if(dialogue == activities[activity][variant].size() - 1) activity = 0;
             last = millis();
         } else {
             activity = 0;
@@ -204,6 +205,8 @@ void state_loop() {
 
     uint64_t now = millis();
     if(!check_can_upd(&changed)) return;
+
+    if(activity_reset_timer != 0xffffffff && now - activity_reset_timer > 5000) activity = 0;
 
     if(now - saturation_last_decreased >= 8 * 60 * 1000) {
         if(saturation > 0) saturation--;
