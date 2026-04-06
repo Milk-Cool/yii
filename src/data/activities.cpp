@@ -21,7 +21,7 @@ Activities activities{
     { ACTIVITY_TALKING, { // talking in groups of 2 or more
        { "Heya %a!", "Hey! Have you ever heard of %t?", "Oh! I know about %t! I recently watched a short film on it.", "Really? That's so fun, %N!", "It really is!" }, 
        { "Hey, did you know that %t is actually a government hoax designed to control people?", "What? No, you're kidding, %N. It is not.", "I don't know... %t does seem really shady...", "Meow" },
-       { "Hi! Do you think this world is even real?", "No, I think it's just a simulation.", "I personally think it is real, though I do believe in parallel unievrses.", "Well, both theories are valid, I guess...", "Fair enough.", "Let's switch topics." },
+       { "Hi! Do you think this world is even real?", "No, I think it's just a simulation.", "I personally think it is real, though I do believe in parallel universes.", "Well, both theories are valid, I guess...", "Fair enough.", "Let's switch topics." },
        { "Hi! What do you think about %t?", "It can be really fun at times, but I'm not really a fan of it.", "Huh... Am I the only %t fan here then?", "Yes you are, %N." },
        { "Hey %a! What kind of music do you listen to?", "I listen to drum and bass mostly.", "Oh, that's cool! I am more of a classical music person myself.", "Oh, I listen to classical music a lot too!", "Oh, great!", "By the way, what is your favorite classical composer?", "I'd say mine is Beethoven. His songs are still holding up well.", "Oh, that's pretty cool, %N!" },
        { "Hey! Do you play any musical instruments?", "Well, not anymore - I used to play bass, but I lost interest in it.", "Oh, that's sad. I used to play drums.", "Woah, drums are pretty cool!", "I know, right?" },
