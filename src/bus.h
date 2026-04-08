@@ -10,6 +10,7 @@ bool bus_is_complete(std::vector<uint8_t>& inp);
 #define TYPE_U16 2
 #define TYPE_U32 3
 #define TYPE_STR 8
+#define TYPE_RESET 254
 #define TYPE_NAME 255
 typedef struct {
     uint8_t type;

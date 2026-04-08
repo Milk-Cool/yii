@@ -62,6 +62,8 @@ BusData bus_parse(std::vector<uint8_t>& inp) {
                 name = val;
             else ret.push_back((BusEntry) { .name = name, .val = { .type = TYPE_STR, .str = val } });
         }
+        else if(inp[i] == TYPE_RESET)
+            ret.push_back((BusEntry) { .name = name, .val = { .type = inp[i] } });
         i++;
     }
     return ret;
@@ -94,6 +96,9 @@ std::vector<uint8_t> bus_compile(BusData& data) {
         else if(ent.val.type == TYPE_STR) {
             for(char c : ent.val.str) ret.push_back(c);
             ret.push_back(0);
+        }
+        else if(ent.val.type == TYPE_RESET) {
+            // pass
         }
     }
     ret.push_back(TYPE_END);

@@ -58,7 +58,7 @@ void state_init() {
     std::lock_guard<std::mutex> guard(upd_mutex);
     esp_read_mac(my_mac, ESP_MAC_BT);
 
-    String name_loaded = storage().getString("name");
+    String name_loaded = storage().getString("name", "dummy girl");
     memcpy(name, name_loaded.c_str(), name_loaded.length());
 
     level = storage().getUChar("level");

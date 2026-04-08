@@ -22,6 +22,9 @@ void setup() {
         ble_set_cb(handle_advertisement);
 
         tts_play("ah!");
+    } else {
+        pinMode(2, OUTPUT);
+        digitalWrite(2, HIGH);
     }
 }
 
@@ -43,8 +46,6 @@ void loop() {
         BusData out;
         for(BusEntry& ent : data) {
             if(ent.val.type == TYPE_NAME) continue; // something is wrong
-            Serial.println(ent.name);
-            Serial.println(ent.val.type);
             if(ent.name == "!setup_write" && ent.val.type == TYPE_U8) {
                 setup_write = ent.val.u;
                 continue;
@@ -54,11 +55,13 @@ void loop() {
                 else if(ent.val.type == TYPE_U8) storage().putUChar(ent.name.c_str(), ent.val.u);
                 else if(ent.val.type == TYPE_U16) storage().putUShort(ent.name.c_str(), ent.val.u);
                 else if(ent.val.type == TYPE_U32) storage().putUInt(ent.name.c_str(), ent.val.u);
+                else if(ent.val.type == TYPE_RESET) storage().remove(ent.name.c_str());
             }
             if(ent.val.type == TYPE_STR) out.push_back((BusEntry){ .name = ent.name, .val = { .type = TYPE_STR, .str = storage().getString(ent.name.c_str()) } });
             else if(ent.val.type == TYPE_U8) out.push_back((BusEntry){ .name = ent.name, .val = { .type = TYPE_U8, .u = storage().getUChar(ent.name.c_str()) } });
             else if(ent.val.type == TYPE_U16) out.push_back((BusEntry){ .name = ent.name, .val = { .type = TYPE_U16, .u = storage().getUShort(ent.name.c_str()) } });
             else if(ent.val.type == TYPE_U32) out.push_back((BusEntry){ .name = ent.name, .val = { .type = TYPE_U32, .u = storage().getUInt(ent.name.c_str()) } });
+            else if(ent.val.type == TYPE_RESET) out.push_back((BusEntry){ .name = ent.name, .val = { .type = TYPE_RESET } });
         }
         if(out.size() > 0) {
             auto bin = bus_compile(out);
