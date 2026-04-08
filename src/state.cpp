@@ -253,6 +253,7 @@ void state_loop() {
     if(activity_reset_timer != 0xffffffff && now - activity_reset_timer > 5000) {
         activity = 0;
         activity_reset_timer = 0xffffffff;
+        changed = true;
     }
 
     if(now - saturation_last_decreased >= 8 * 60 * 1000) {
