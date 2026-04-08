@@ -24,4 +24,9 @@ extern Activities activities;
 
 typedef const char* Thing;
 typedef std::vector<Thing> Things;
-extern Things things;
+
+extern Things things[];
+#define THING_CAT_THINGS 0
+#define THING_CAT_MUSIC_GENRE 1
+#define THING_CAT_MUSIC_INSTRUMENT 2
+#define THING_CAT_CITY 3

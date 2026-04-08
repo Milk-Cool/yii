@@ -1,11 +1,46 @@
 #include "data.h"
 
-Things things = {
-    "aviation",
-    "beehive industry",
-    "cats",
-    "electronics",
-    "fireworks",
-    "holidays",
-    "internet"
+Things things[] = {
+    {
+        "aviation",
+        "beehive industry",
+        "cats",
+        "electronics",
+        "fireworks",
+        "holidays",
+        "internet",
+        "comedy shows",
+        "love",
+        "linguistics",
+        "paragliders",
+        "quizzes",
+        "magazines",
+        "time",
+        "physics",
+        "money",
+        "free will",
+    },
+    {
+        "drum and bass",
+        "classical",
+        "rock and roll",
+        "vocaloid",
+        "hip-hop",
+    },
+    {
+        "drums",
+        "bass",
+        "piano",
+        "flute",
+        "guitar",
+    },
+    {
+        "Paris",
+        "London",
+        "Los Angeles",
+        "Berlin",
+        "Sydney",
+        "Moscow",
+        "New York",
+    },
 };

@@ -2,7 +2,8 @@
 
 // percent-codes:
 // %n -- my name, %N -- the previous person's name, %a -- the next person's name
-// %t -- randomly chosen thing
+// %0 - %9 -- thing category (see data.h; replaced with ""; default is 0)
+// %t -- randomly chosen thing #1, $T -- randomly chosen thing #2
 
 Activities activities{
     { ACTIVITY_INTRODUCTION, { // two dolls meeting for the first time
@@ -23,8 +24,8 @@ Activities activities{
        { "Hey, did you know that %t is actually a government hoax designed to control people?", "What? No, you're kidding, %N. It is not.", "I don't know... %t does seem really shady...", "Meow" },
        { "Hi! Do you think this world is even real?", "No, I think it's just a simulation.", "I personally think it is real, though I do believe in parallel universes.", "Well, both theories are valid, I guess...", "Fair enough.", "Let's switch topics." },
        { "Hi! What do you think about %t?", "It can be really fun at times, but I'm not really a fan of it.", "Huh... Am I the only %t fan here then?", "Yes you are, %N." },
-       { "Hey %a! What kind of music do you listen to?", "I listen to drum and bass mostly.", "Oh, that's cool! I am more of a classical music person myself.", "Oh, I listen to classical music a lot too!", "Oh, great!", "By the way, what is your favorite classical composer?", "I'd say mine is Beethoven. His songs are still holding up well.", "Oh, that's pretty cool, %N!" },
-       { "Hey! Do you play any musical instruments?", "Well, not anymore - I used to play bass, but I lost interest in it.", "Oh, that's sad. I used to play drums.", "Woah, drums are pretty cool!", "I know, right?" },
-       { "%a! Do you have any dreams?", "I do! I would love to go to Paris one day.", "Oh! That's fun. I wanted to climb mount Everest one day.", "What! No way! That's too dangerous.", "It really is, but people have done it.", "Not to mention how fun it probably is!", "...it really isn't." },
+       { "%1Hey %a! What kind of music do you listen to?", "I listen to %t mostly.", "Oh, that's cool! I am more of a %T music person myself.", "Oh, I listen to %T music a lot too!", "Oh, great!", "By the way, what is your favorite %T musician?", "I have one but forgot their name. Their songs are still holding up well though!", "Oh, that's pretty cool, %N!" },
+       { "%2Hey! Do you play any musical instruments?", "Well, not anymore - I used to play %t, but I lost interest in it.", "Oh, that's sad. I used to play %T.", "Woah, %T are pretty cool!", "I know, right?" },
+       { "%3%a! Do you have any dreams?", "I do! I would love to go to %t one day.", "Oh! That's fun. I wanted to climb mount Everest one day.", "What! No way! That's too dangerous.", "It really is, but people have done it.", "Not to mention how fun it probably is!", "...it really isn't." },
     } }
 };

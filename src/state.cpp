@@ -24,7 +24,8 @@ static uint8_t level = 0;
 static uint8_t xp = 0; // 4b
 static uint8_t saturation = 0; // 4b
 static uint8_t thing = 0;
-static uint8_t special_data[4] = { 0 };
+static uint8_t other_thing = 0;
+static uint8_t special_data[3] = { 0 };
 
 static std::vector<uint8_t> met;
 
@@ -44,7 +45,8 @@ static void update() {
     advertisement.push_back(level);
     advertisement.push_back((xp << 4) | saturation);
     advertisement.push_back(thing);
-    for(uint8_t i = 0; i < 4; i++) advertisement.push_back(special_data[i]);
+    advertisement.push_back(other_thing);
+    for(uint8_t i = 0; i < 3; i++) advertisement.push_back(special_data[i]);
 
     storage().putString("name", name);
     storage().putUChar("level", level);
@@ -96,12 +98,40 @@ void put_met(uint8_t* mac, uint8_t val) {
     storage().putBytes("met", met.data(), met.size());
 }
 
+static uint8_t get_cat(const char* str) {
+    uint8_t cat = 0;
+    String s(str);
+    for(uint8_t i = 0; i <= 9; i++)
+        if(s.indexOf(String("%") + i) != -1)
+            cat = i;
+    return cat;
+}
+static uint8_t get_random_thing(uint8_t cat) {
+    uint8_t idx = 0;
+    for(uint8_t i = 0; i < cat; i++)
+        idx += things[i].size();
+    idx += random_get() % things[cat].size();
+    return idx;
+}
+static const char* get_thing(uint8_t idx) {
+    uint8_t i = 0;
+    while(true) {
+        if(idx < things[i].size()) return things[i][idx];
+        idx -= things[i].size();
+        i++;
+    }
+    return "";
+}
 String replace_percents(const char* str, const char* their_name) {
     String o = String(str);
+    uint8_t cat = 0;
+    for(uint8_t i = 0; i <= 9; i++)
+        o.replace(String("%") + i, "");
     o.replace("%n", name);
     o.replace("%N", their_name);
     o.replace("%a", their_name); // TODO: change me when implmenting 3+ dolls
-    o.replace("%t", things[thing]);
+    o.replace("%t", get_thing(thing));
+    o.replace("%T", get_thing(other_thing));
     return o;
 }
 
@@ -126,6 +156,9 @@ static bool check_can_upd(bool* changed) {
     return true;
 }
 
+#define RANDOMIZE_THING thing = get_random_thing(get_cat(activities[activity][variant][dialogue])); \
+    do { other_thing = get_random_thing(get_cat(activities[activity][variant][dialogue])); } while(thing == other_thing);
+
 void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     std::lock_guard<std::mutex> guard(upd_mutex);
     if(!check_can_upd(NULL)) return;
@@ -148,8 +181,9 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     uint8_t their_xp = (data[16] >> 4) & 0xf;
     uint8_t their_saturation = data[16] & 0xf;
     uint8_t their_thing = data[17];
-    uint8_t their_special_data[4];
-    memcpy(their_special_data, data.data() + 18, 4);
+    uint8_t their_other_thing = data[18];
+    uint8_t their_special_data[3];
+    memcpy(their_special_data, data.data() + 19, 3);
     
     if(activity == 0 && their_activity == 0 && memcmp(my_mac, mac, 6) < 0) {
         // my mac is less than theirs, i can start the conversation
@@ -159,24 +193,25 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             variant = random_get() % activities[ACTIVITY_INTRODUCTION].size();
             activity = ACTIVITY_INTRODUCTION;
             dialogue = 0;
+            RANDOMIZE_THING;
             speaking = true;
             put_met(mac, RELATION_GETTING_FAMILIAR_MIN);
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
         } else if((m >= RELATION_GETTING_FAMILIAR_MIN && m <= RELATION_GETTING_FAMILIAR_MAX) || (m == RELATION_ACQUAINTANCES && random_get() % 3 == 0)) {
-            thing = random_get() % things.size();
             variant = random_get() % activities[ACTIVITY_GETTING_TO_KNOW_EACH_OTHER].size();
             activity = ACTIVITY_GETTING_TO_KNOW_EACH_OTHER;
             dialogue = 0;
+            RANDOMIZE_THING;
             speaking = true;
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
             if(m == RELATION_ACQUAINTANCES) {}
             else if(m == RELATION_GETTING_FAMILIAR_MAX) put_met(mac, RELATION_ACQUAINTANCES);
             else put_met(mac, m + 1);
         } else if(m == RELATION_ACQUAINTANCES) {
-            thing = random_get() % things.size();
             variant = random_get() % activities[ACTIVITY_TALKING].size();
             activity = ACTIVITY_TALKING;
             dialogue = 0;
+            RANDOMIZE_THING;
             speaking = true;
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
         }
@@ -185,6 +220,7 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     } else if(their_activity != 0 && ((activity == 0 && their_dialogue < 1) || (their_activity == activity && their_dialogue == dialogue + 1))) { // TODO: for multiple dolls, edit `their_dialogue < 1` and `their_dialogue == dialogue + 1`
         if(their_dialogue != activities[their_activity][their_variant].size() - 1) {
             thing = their_thing;
+            other_thing = their_other_thing;
             activity = their_activity;
             variant = their_variant;
             dialogue = their_dialogue + 1;
