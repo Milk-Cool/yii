@@ -27,5 +27,10 @@ Activities activities{
        { "%1Hey %a! What kind of music do you listen to?", "I listen to %t mostly.", "Oh, that's cool! I am more of a %T music person myself.", "Oh, I listen to %T music a lot too!", "Oh, great!", "By the way, what is your favorite %T musician?", "I have one but forgot their name. Their songs are still holding up well though!", "Oh, that's pretty cool, %N!" },
        { "%2Hey! Do you play any musical instruments?", "Well, not anymore - I used to play %t, but I lost interest in it.", "Oh, that's sad. I used to play %T.", "Woah, %T are pretty cool!", "I know, right?" },
        { "%3%a! Do you have any dreams?", "I do! I would love to go to %t one day.", "Oh! That's fun. I wanted to climb mount Everest one day.", "What! No way! That's too dangerous.", "It really is, but people have done it.", "Not to mention how fun it probably is!", "...it really isn't." },
-    } }
+    } },
+    { ACTIVITY_BECOMING_FRIENDS, {
+        { "Hey there %N!", "Hi! What did you wanna talk about?", "So you know %t?", "Yes, I went to a %t movie to a cinema recently!", "No way! Me too!", "Oh wow! Wanna be frends, %N? I'm sure we'll have a lot to talk about.", "Sure!!" },
+        { "%4Hi %N!", "Hi %N! What is it?", "What's your favorite food?", "Oh, mine is %t! I would eat it every breakfast, lunch and dinner if i had the chance. What about you?", "Mine is also %t! Followed by %T, of course.", "Oh wow!! We sure do have similar tastes in food.", "Cool! Wanna be friends?", "Of course!" },
+        { "%1Heya %N, what music do you listen to?", "Hi %N! I listen to %t. What about you?", "I'm more of a %T fan, though %t is pretty cool too.", "Oh okay. Cool that you also enjoy %t. Wanna be friends?", "Yes! Of course!" },
+    } },
 };

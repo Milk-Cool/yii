@@ -43,4 +43,13 @@ Things things[] = {
         "Moscow",
         "New York",
     },
+    {
+        "fried rice",
+        "baked potatoes",
+        "spaghetti bolognese",
+        "hamburgers",
+        "fries",
+        "steak",
+        "poutine",
+    },
 };

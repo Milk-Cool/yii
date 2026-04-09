@@ -197,7 +197,7 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             speaking = true;
             put_met(mac, RELATION_GETTING_FAMILIAR_MIN);
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
-        } else if((m >= RELATION_GETTING_FAMILIAR_MIN && m <= RELATION_GETTING_FAMILIAR_MAX) || (m == RELATION_ACQUAINTANCES && random_get() % 3 == 0)) {
+        } else if((m >= RELATION_GETTING_FAMILIAR_MIN && m <= RELATION_GETTING_FAMILIAR_MAX) || (m == RELATION_ACQUAINTANCES && random_get() % 3 == 0) || (m >= RELATION_FRIENDS_MIN && m <= RELATION_FRIENDS_MAX && random_get() % 5 == 0)) {
             variant = random_get() % activities[ACTIVITY_GETTING_TO_KNOW_EACH_OTHER].size();
             activity = ACTIVITY_GETTING_TO_KNOW_EACH_OTHER;
             dialogue = 0;
@@ -207,13 +207,22 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
             if(m == RELATION_ACQUAINTANCES) {}
             else if(m == RELATION_GETTING_FAMILIAR_MAX) put_met(mac, RELATION_ACQUAINTANCES);
             else put_met(mac, m + 1);
-        } else if(m == RELATION_ACQUAINTANCES) {
+        } else if(m == RELATION_ACQUAINTANCES && random_get() % 15 == 0) {
+            variant = random_get() % activities[ACTIVITY_BECOMING_FRIENDS].size();
+            activity = ACTIVITY_BECOMING_FRIENDS;
+            dialogue = 0;
+            RANDOMIZE_THING;
+            speaking = true;
+            tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
+            put_met(mac, RELATION_FRIENDS_MIN);
+        } else if(m == RELATION_ACQUAINTANCES || (m >= RELATION_FRIENDS_MIN && m <= RELATION_FRIENDS_MAX)) {
             variant = random_get() % activities[ACTIVITY_TALKING].size();
             activity = ACTIVITY_TALKING;
             dialogue = 0;
             RANDOMIZE_THING;
             speaking = true;
             tts_play(replace_percents(activities[activity][variant][dialogue], their_name).c_str());
+            if(m >= RELATION_FRIENDS_MIN && m < RELATION_FRIENDS_MAX) put_met(mac, m + 1);
         }
         tts_cooldown = millis();
         last = millis();
