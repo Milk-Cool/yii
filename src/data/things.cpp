@@ -52,4 +52,11 @@ Things things[] = {
         "steak",
         "poutine",
     },
+    {
+        "You're beautiful like a flower.",
+        "You're funny like a comedian.",
+        "You're smart like a computer.",
+        "You shine bright like the sun.",
+        "You're calm as the moon.",
+    },
 };

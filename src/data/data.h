@@ -14,8 +14,11 @@ extern Activities activities;
 #define ACTIVITY_GETTING_TO_KNOW_EACH_OTHER 2
 #define ACTIVITY_TALKING 3
 #define ACTIVITY_BECOMING_FRIENDS 4
+#define ACTIVITY_CONFESSING_SUCCESSFUL 5
+#define ACTIVITY_CONFESSING_UNSUCCESSFUL 6
 
-#define DOLLS_LIMIT(activity) (activity == ACTIVITY_INTRODUCTION || activity == ACTIVITY_GETTING_TO_KNOW_EACH_OTHER || activity == ACTIVITY_BECOMING_FRIENDS \
+#define DOLLS_LIMIT(activity) (activity == ACTIVITY_INTRODUCTION || activity == ACTIVITY_GETTING_TO_KNOW_EACH_OTHER \
+    || activity == ACTIVITY_BECOMING_FRIENDS || activity == ACTIVITY_CONFESSING_SUCCESSFUL || activity == ACTIVITY_CONFESSING_UNSUCCESSFUL \
     ? 2 \
     : 255)
 
@@ -24,6 +27,7 @@ extern Activities activities;
 #define RELATION_ACQUAINTANCES 3
 #define RELATION_FRIENDS_MIN 4
 #define RELATION_FRIENDS_MAX 9
+#define RELATION_LOVERS 10
 
 typedef const char* Thing;
 typedef std::vector<Thing> Things;
@@ -34,3 +38,4 @@ extern Things things[];
 #define THING_CAT_MUSIC_INSTRUMENT 2
 #define THING_CAT_CITY 3
 #define THING_CAT_FOOD 4
+#define THING_CAT_PICKUP_LINES 5

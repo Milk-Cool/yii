@@ -36,4 +36,14 @@ Activities activities{
         { "%4Hi %N!", "Hi %N! What is it?", "What's your favorite food?", "Oh, mine is %t! I would eat it every breakfast, lunch and dinner if i had the chance. What about you?", "Mine is also %t! Followed by %T, of course.", "Oh wow!! We sure do have similar tastes in food.", "Cool! Wanna be friends?", "Of course!" },
         { "%1Heya %N, what music do you listen to?", "Hi %N! I listen to %t. What about you?", "I'm more of a %T fan, though %t is pretty cool too.", "Oh okay. Cool that you also enjoy %t. Wanna be friends?", "Yes! Of course!" },
     } },
+    { ACTIVITY_CONFESSING_SUCCESSFUL, {
+        { "%5Hey %N. I wanna tell you something.", "Yes, what is it?", "%t Will you go out with me?", "Yes!", "Yay!" },
+        { "%5Hello %N. I wanna ask you something.", "What is it, %N?", "%t Will you go out with me?", "Yes, of course!", "Hooray!" },
+        { "%5Hello %N. I would like to discuss something with you", "What is it, %N?", "I kind of like you. Will you go out with me?", "Yes, of course!", "Yay!" },
+    } },
+    { ACTIVITY_CONFESSING_UNSUCCESSFUL, {
+        { "%4Hey %N. I wanna tell you something.", "Yes, what is it?", "You shine birght like a %t. Will you go out with me?", "What? What do you mean?", "I... don't know. Sorry." },
+        { "%2Hello %N. I wanna ask you something.", "What is it, %N?", "You are... loud... just like %t... Will you go out with me? Please?", "No way. What even is that pick-up line?", "Well this is awkward! Sorry." },
+        { "Hello %N. I would like to discuss something with you", "What is it, %N?", "I kind of like you. Will you go out with me?", "No, sorry...", "Damn..." },
+    } },
 };
