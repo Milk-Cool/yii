@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>config page</title>
+    </head>
+    <body>
+        <form method="post">
+            <input name="t" value="control" hidden>
+            <input type="submit" value="control mode">
+        </form>
+        <form method="post">
+            <input name="t" value="doll" hidden>
+            <input type="submit" value="doll mode">
+        </form>
+    </body>
+    <script>
+        const createInput = (name, value, id, hidden = false) => {
+            const inp = document.createElement("input");
+            if(name) inp.name = name;
+            if(value) inp.value = value;
+            if(id) inp.id = id;
+            if(hidden) inp.hidden = true;
+            return inp;
+        };
+        (async () => {
+            const f = await fetch("/config?get=");
+            const j = await f.json();
+            for(const [n, t] of Object.entries({
+                "name": "string",
+                "pitch_base": "u8",
+                "pitch_range": "u8",
+                "flutter": "u8",
+                "speed": "u8",
+                "tone1": "u8",
+                "tone2": "u8",
+                "tone3": "u8",
+            })) {
+                const form = document.createElement("form");
+                form.method = "post";
+                form.appendChild(createInput("t", t, null, true));
+                form.appendChild(createInput("name", n, null, true));
+                const p = document.createElement("p");
+                p.innerText = n;
+                form.appendChild(p);
+                form.appendChild(createInput("value", j[n] || "", null));
+                const inp = document.createElement("input");
+                inp.type = "submit";
+                form.appendChild(inp);
+                document.body.appendChild(form);
+            }
+        })();
+    </script>
+</html>
