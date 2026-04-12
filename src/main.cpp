@@ -10,6 +10,7 @@
 #include <ESPmDNS.h>
 #include <DNSServer.h>
 #include <ArduinoJson.h>
+#include <ElegantOTA.h>
 
 WebServer server(80);
 IPAddress ip_self(192, 168, 121, 1);
@@ -119,6 +120,7 @@ void setup() {
                 server.send(302, "text/plain", "");
             });
             
+            ElegantOTA.begin(&server);
             server.begin();
         }
     }
@@ -178,6 +180,7 @@ void loop() {
         }
         dnsServer.processNextRequest();
         server.handleClient();
+        ElegantOTA.loop();
         return;
     }
 
