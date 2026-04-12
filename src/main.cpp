@@ -75,6 +75,7 @@ void setup() {
                     doc["tone1"] = storage().getUChar("tone1");
                     doc["tone2"] = storage().getUChar("tone2");
                     doc["tone3"] = storage().getUChar("tone3");
+                    doc["gain"] = storage().getUChar("gain");
 
                     String out;
                     serializeJson(doc, out);
