@@ -27,7 +27,7 @@ void tts_init() {
     };
     BMP->setVoice(vdata);
     BMP->begin();
-    BMP->setGain(0.8);
+    BMP->setGain(0.7);
     BMP->setPitch(99);
 }
 bool tts_done() {
