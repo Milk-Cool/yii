@@ -46,4 +46,13 @@ Activities activities{
         { "%2Hello %N. I wanna ask you something.", "What is it, %N?", "You are... loud... just like %t... Will you go out with me? Please?", "No way. What even is that pick-up line?", "Well this is awkward! Sorry." },
         { "Hello %N. I would like to discuss something with you", "What is it, %N?", "I kind of like you. Will you go out with me?", "No, sorry...", "Damn..." },
     } },
+    { ACTIVITY_FEED, { { "Yum!" } } },
+    { ACTIVITY_FEED_FULL, { { "Sorry, I'm full." } } },
+    { ACTIVITY_POKED, { { "Ow!" } } },
+    { ACTIVITY_PLAY_RPS, { { "Oh, yay! Let's play rock paper scissors!" } } },
+    { ACTIVITY_RPS, {
+        { "Rock and rock? What is this, stone age?", "Oh no! Paper beats rock! I lose...", "Ha! Rock beats scissors! I win!" },
+        { "Paper beats rock! Yay, I win!", "Paper and paper! Wow, we sure do have a lot in common.", "Scissors cut paper! I lost." },
+        { "Rock beats scissors! And... I lost.", "Scissors beat paper! I won!", "Scissors and scissors..." },
+    } },
 };

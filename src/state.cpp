@@ -64,6 +64,15 @@ static void update_flags() {
     flags = (storage().getUChar("partner") ? FLAG_HAS_PARTNER : 0);
 }
 
+static void inc_xp() {
+    if(xp == 15) {
+        xp = 0;
+        ++level;
+    } else xp++;
+    storage().putUChar("level", level);
+    storage().putUChar("xp", xp);
+}
+
 void state_init() {
     std::lock_guard<std::mutex> guard(upd_mutex);
     esp_read_mac(my_mac, ESP_MAC_BT);
@@ -168,7 +177,8 @@ static bool check_can_upd(bool* changed) {
 #define RANDOMIZE_THING thing = get_random_thing(get_cat(activities[activity][variant][dialogue])); \
     do { other_thing = get_random_thing(get_cat(activities[activity][variant][dialogue])); } while(thing == other_thing);
 
-void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
+static uint16_t last_n = 0;
+void state_handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     std::lock_guard<std::mutex> guard(upd_mutex);
     if(!check_can_upd(NULL)) return;
 
@@ -178,10 +188,36 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
     if(!memcmp(my_mac, mac, 6))
         return; // that's me!
     
-    Serial.println(rssi);
-    if(rssi < -65) return; // not close enough!!
     char their_name[13] = { 0 };
     memcpy(their_name, data.data(), 12);
+    if(!memcmp(their_name, "!contr", 6)) {
+        uint8_t their_mac[6];
+        memcpy(their_mac, their_name + 6, 6);
+        if(memcmp(my_mac, their_mac, 6)) return; // not me
+
+        uint8_t action = data[12];
+        uint16_t n = (((uint16_t)data[13]) << 8) | data[14];
+        if(last_n == n) return;
+        last_n = n;
+
+        if(action == ACTION_FEED) {
+            tts_play(saturation == 15 ? activities[ACTIVITY_FEED_FULL][0][0] : activities[ACTIVITY_FEED][0][0]);
+            storage().putUChar("saturation", saturation == 15 ? saturation : ++saturation);
+            update();
+        } else if(action == ACTION_POKE) {
+            tts_play(activities[ACTIVITY_POKED][0][0]);
+        } else if(action == ACTION_PLAY_RPS) {
+            tts_play(activities[ACTIVITY_PLAY_RPS][0][0]);
+        } else if(action == ACTION_RPS_ROCK || action == ACTION_RPS_PAPER || action == ACTION_RPS_SCISSORS) {
+            uint8_t theirs = action - ACTION_RPS_ROCK;
+            uint8_t mine = random_get() % 3;
+            tts_play(activities[ACTIVITY_RPS][mine][theirs]);
+        }
+
+        return;
+    }
+    Serial.println(rssi);
+    if(rssi < -65) return; // not close enough!!
     Serial.println(their_name);
     uint8_t their_activity = data[12];
     uint8_t their_variant = data[13];
@@ -250,6 +286,8 @@ void handle_advertisement(const uint8_t* addr, std::string data, int8_t rssi) {
         tts_cooldown = millis();
         last = millis();
     } else if(their_activity != 0 && ((activity == 0 && their_dialogue < 1) || (their_activity == activity && their_dialogue == dialogue + 1))) { // TODO: for multiple dolls, edit `their_dialogue < 1` and `their_dialogue == dialogue + 1`
+        inc_xp();
+
         if(their_activity == ACTIVITY_CONFESSING_SUCCESSFUL) {
             storage().putUChar("partner", 1);
             update_flags();

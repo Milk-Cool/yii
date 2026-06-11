@@ -3,6 +3,7 @@
 #include "storage.h"
 #include "blecomm.h"
 #include "state.h"
+#include "control.h"
 #include "random.h"
 #include "tts.h"
 #include <WiFi.h>
@@ -46,15 +47,19 @@ void setup() {
     Serial.println("i'm alive!!");
     storage_init();
     mode = storage().getUChar("mode", 0); // 0 - setup, 1 - control, 2 - doll
-    if(mode != 0) {
+    if(mode == 2) {
         tts_init();
         random_init();
         ble_init();
         state_init();
-        ble_set_cb(handle_advertisement);
+        ble_set_cb(state_handle_advertisement);
 
         tts_play("ah!");
-    } else {
+    } else if(mode == 1) {
+        ble_init();
+        control_init();
+        ble_set_cb(control_handle_advertisement);
+    } else if(mode == 0) {
         pinMode(2, OUTPUT);
         digitalWrite(2, HIGH);
 
@@ -196,5 +201,6 @@ void loop() {
         }
     } else boot_held = false;
 
-    state_loop();
+    if(mode == 1) control_loop();
+    else state_loop();
 }

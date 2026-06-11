@@ -3,6 +3,13 @@
 #include <vector>
 #include <map>
 
+#define ACTION_FEED 0
+#define ACTION_POKE 1
+#define ACTION_PLAY_RPS 2
+#define ACTION_RPS_ROCK 3
+#define ACTION_RPS_PAPER 4
+#define ACTION_RPS_SCISSORS 5
+
 typedef const char* Dialogue;
 typedef std::vector<Dialogue> Variant;
 typedef std::vector<Variant> Activity;
@@ -16,6 +23,11 @@ extern Activities activities;
 #define ACTIVITY_BECOMING_FRIENDS 4
 #define ACTIVITY_CONFESSING_SUCCESSFUL 5
 #define ACTIVITY_CONFESSING_UNSUCCESSFUL 6
+#define ACTIVITY_FEED 100
+#define ACTIVITY_FEED_FULL 101
+#define ACTIVITY_POKED 102
+#define ACTIVITY_PLAY_RPS 103
+#define ACTIVITY_RPS 104
 
 #define DOLLS_LIMIT(activity) (activity == ACTIVITY_INTRODUCTION || activity == ACTIVITY_GETTING_TO_KNOW_EACH_OTHER \
     || activity == ACTIVITY_BECOMING_FRIENDS || activity == ACTIVITY_CONFESSING_SUCCESSFUL || activity == ACTIVITY_CONFESSING_UNSUCCESSFUL \

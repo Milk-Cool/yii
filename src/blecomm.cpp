@@ -35,7 +35,6 @@ void ble_init() {
     scan->setActiveScan(true);
     scan->setMaxResults(0);
     scan->start(scan_time, false, true);
-    Serial.println("scan start");
 }
 void ble_set_data(std::vector<uint8_t> vec, bool minimize_intervals) {
     NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
