@@ -217,7 +217,7 @@ void state_handle_advertisement(const uint8_t* addr, std::string data, int8_t rs
         return;
     }
     Serial.println(rssi);
-    if(rssi < -65) return; // not close enough!!
+    if(rssi < -72) return; // not close enough!!
     Serial.println(their_name);
     uint8_t their_activity = data[12];
     uint8_t their_variant = data[13];

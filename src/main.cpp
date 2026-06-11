@@ -98,6 +98,9 @@ void setup() {
                 } else if(t == "doll") {
                     storage().putUChar("mode", 2);
                     ESP.restart();
+                } else if(t == "rmet") {
+                    storage().remove("met");
+                    ESP.restart();
                 }
                 String name = server.arg("name");
                 String value = server.arg("value");
