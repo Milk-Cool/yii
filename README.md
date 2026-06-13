@@ -1,7 +1,7 @@
 # yii
 tomodachi life-style mii dolls with esp32's inside that can speak to each other via BLE and TTS!
 
-# TODO FOR YOU: insert a photo of the dolls in clothing here. also add the zine before shipping!!!
+![dolls](images/dolls.png)
 
 ## how do i use it?
 first, you need to build the dolls!! you can find the pcb files and the schematic under the `kicad/` directory, or you can take a look at them here:
